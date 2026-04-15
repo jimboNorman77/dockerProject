@@ -6,6 +6,9 @@ import json
 
 flags = ""
 modes = ["static", "hybrid", "active"]
+name = []
+version = []
+
 
 def verboseFlag(verbose):
 	if verbose:
@@ -20,17 +23,42 @@ def passiveFlag(passive):
 		print("Passive Mode Engaged")
 
 def createSBOM(container):
+	##Command to extract the SBOM from the container
 	command = "docker run -v ./output:/output aquasec/trivy:canary image -q --scanners vuln --format cyclonedx --output /output/result.json " + container
+	##Runs the command as a subprocess, stores nothing into the variable
 	check = subprocess.run(command, shell=True) 
 
 def readJSON():
+	##Opens the SBOM file which was created
 	with open("./output/result.json") as jsonfile:
 		d = json.load(jsonfile)
-		print(d)
+	##Filters the dictionary to look for the components section
+	components = d["components"]
+	##count = 0
+	##Loops through the components section extracting the name of the packages
+	for component in components:
+		name = component["name"]
+		versions = component["version"]
+		software.append(name)
+		version.append(version)
+		##count = count + 1
+	##print(count)
+	##print(software)
+	##print(version)
+	return name, version
+
+def createCPE(name, version):
+	count = len(name)
+	for package in count:
+		check = name[package]
+		if check[:3] == "lib":
+			print(name[package])
+			print("HERE")
 
 def static(container):
 	createSBOM(container)
-	readJSON()
+	name, version = readJSON()
+	createCPE(name, version)
 
 
 def main(mode, container):
