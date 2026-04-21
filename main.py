@@ -63,7 +63,7 @@ def fetchCVES(names, version):
                 details[1] = metricsV40["cvssData"]["baseSeverity"]
                 details[2] = metricsV40["cvssData"]["baseScore"]
             except:
-                try:
+            	try:
 				    metricsV31 = metrics["cvssMetricV31"]
                     metricsV31 = metricsV31[0]
                     severities.append(metricsV31["cvssData"]["baseSeverity"])
