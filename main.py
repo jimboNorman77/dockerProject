@@ -8,6 +8,14 @@ flags = ""
 modes = ["static", "hybrid", "active"]
 name = []
 version = []
+count = 0
+notv20 = 0
+notv30 = 0
+notv31 = 0
+notv40 = 0
+cves = []
+severities = []
+details = ["CVE_ID", "Severity Rating", "Severity Score"]
 
 
 def verboseFlag(verbose):
@@ -48,12 +56,57 @@ def readJSON():
 	return name, version
 
 def createCPE(name, version):
-	count = len(name)
-	for package in count:
-		check = name[package]
-		if check[:3] == "lib":
-			print(name[package])
-			print("HERE")
+	for name in names:
+    url = baseURL + name
+    response = requests.get(url)
+    response_json = response.json()
+    count = count + 1
+    vulnerabilities = response_json["vulnerabilities"]
+    print(name + " Vulnerabilities")
+    print(response_json["totalResults"])
+    for vulnerability in vulnerabilities:
+        print(details)
+        cve = vulnerability["cve"]
+        cves.append(cve["id"])
+        details[0] = cve["id"]
+        metrics = cve["metrics"]
+        try:
+            metricsV2 = metrics["cvssMetricV2"]
+            metricsV2 = metricsV2[0]
+            severities.append(metricsV2["baseSeverity"])
+            details[1] = metricsV2["baseSeverity"]
+            details[2] = metricsV2["cvssData"]["baseScore"]
+        except:
+            try:
+                notv2 = notv2 + 1
+                metricsV30 = metrics["cvssMetricV30"]
+                metricsV30 = metricsV30[0]
+                severities.append(metricsV30["cvssData"]["baseSeverity"])
+                details[1] = metricsV30["cvssData"]["baseSeverity"]
+                details[2] = metricsV30["cvssData"]["baseScore"]
+            except:
+                try:
+                    notv30 = notv30 + 1
+                    metricsV31 = metrics["cvssMetricV31"]
+                    metricsV31 = metricsV31[0]
+                    severities.append(metricsV31["cvssData"]["baseSeverity"])
+                    details[1] = metricsV31["cvssData"]["baseSeverity"]
+                    details[2] = metricsV31["cvssData"]["baseScore"]
+                except:
+                    try:
+                        notv31 = notv31 + 1
+                        metricsV40 = metrics["cvssMetricV40"]
+                        metricsV40 = metricsV40[0]
+                        severities.append(metricsV40["cvssData"]["baseSeverity"])
+                        details[1] = metricsV40["cvssData"]["baseSeverity"]
+                        details[2] = metricsV40["cvssData"]["baseScore"]
+                    except:
+                        count = count + 1
+                        print(cve["id"])
+                        print("OFDJKAPFJPOASDFJKOIPWEJFAODPJKFKLADJFPOEAKROPAEJF")
+                
+    print(cves)
+    print(severities)
 
 def static(container):
 	createSBOM(container)
